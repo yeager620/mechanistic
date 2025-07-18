@@ -11,7 +11,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
     log_memory_usage, validate_phi2_architecture, extract_weight_safely, 
-    get_device_info, logger
+    extract_bias_safely, get_device_info, logger
 )
 
 def load_phi2_model(model_id: str = "microsoft/phi-2") -> tuple:
@@ -111,6 +111,8 @@ def extract_phi2_weights(model, arch_info: dict) -> dict:
                 if hasattr(mlp, 'fc1') and hasattr(mlp, 'fc2'):
                     fc1_weight = extract_weight_safely(mlp, 'fc1', layer_idx)
                     fc2_weight = extract_weight_safely(mlp, 'fc2', layer_idx)
+                    fc1_bias = extract_bias_safely(mlp, 'fc1', layer_idx)
+                    fc2_bias = extract_bias_safely(mlp, 'fc2', layer_idx)
                     
                     if fc1_weight is not None:
                         layer_dict[f"FF1_{layer_idx}"] = fc1_weight
@@ -118,6 +120,12 @@ def extract_phi2_weights(model, arch_info: dict) -> dict:
                     if fc2_weight is not None:
                         layer_dict[f"FF2_{layer_idx}"] = fc2_weight
                         logger.info(f"Layer {layer_idx} fc2: {fc2_weight.shape}")
+                    if fc1_bias is not None:
+                        layer_dict[f"FF1_bias_{layer_idx}"] = fc1_bias
+                        logger.info(f"Layer {layer_idx} fc1_bias: {fc1_bias.shape}")
+                    if fc2_bias is not None:
+                        layer_dict[f"FF2_bias_{layer_idx}"] = fc2_bias
+                        logger.info(f"Layer {layer_idx} fc2_bias: {fc2_bias.shape}")
                 else:
                     logger.warning(f"Layer {layer_idx} MLP has no fc1/fc2 structure")
             

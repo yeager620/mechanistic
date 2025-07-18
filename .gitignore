@@ -14,6 +14,8 @@ wheels/
 *.json
 *.npz
 *.pkl
+*.pth
+
 
 *.DS_Store
 

@@ -82,6 +82,18 @@ def extract_weight_safely(module, attr_name: str, layer_idx: Optional[int] = Non
         logger.warning(f"Failed to extract {attr_name}{layer_info}: {e}")
     return None
 
+def extract_bias_safely(module, attr_name: str, layer_idx: Optional[int] = None) -> Optional[np.ndarray]:
+    """Safely extract bias vector from module attribute."""
+    try:
+        if hasattr(module, attr_name):
+            layer_module = getattr(module, attr_name)
+            if hasattr(layer_module, 'bias') and layer_module.bias is not None:
+                return layer_module.bias.detach().cpu().float().numpy()
+    except Exception as e:
+        layer_info = f" (layer {layer_idx})" if layer_idx is not None else ""
+        logger.warning(f"Failed to extract bias for {attr_name}{layer_info}: {e}")
+    return None
+
 def normalize_rows(matrix: np.ndarray, method: str = 'l2') -> np.ndarray:
     """Normalize rows of matrix."""
     if method == 'l2':

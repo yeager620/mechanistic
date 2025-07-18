@@ -75,6 +75,13 @@ uv run python phi2_tda.py local tda
 jupyter notebook notebooks/03_viz.ipynb
 ```
 
+#### Option 3: MLP Reconstruction
+Reconstruct all 32 trained MLPs from weights:
+```bash
+# Requires downloaded weights from Option 2, Step 1
+uv run python phi2_tda.py local reconstruct-mlps --num-layers 32
+```
+
 #### Direct Script Access
 You can also run scripts directly:
 ```bash
@@ -85,6 +92,9 @@ uv run python analysis/remote_analysis.py --demo
 uv run python scripts/00_download.py
 uv run python scripts/01_extract.py
 uv run python scripts/02_tda.py
+
+# MLP reconstruction
+uv run python mlp_reconstructor.py
 ```
 
 ## 📋 Core Components
@@ -166,6 +176,7 @@ uv run python phi2_tda.py remote --tda Q_stratum --max-points 1000
 uv run python phi2_tda.py local download --model microsoft/phi-2
 uv run python phi2_tda.py local extract --max-points 10000
 uv run python phi2_tda.py local tda --output custom_results/
+uv run python phi2_tda.py local reconstruct-mlps --num-layers 32
 ```
 
 ### Direct Script Commands
@@ -178,6 +189,7 @@ uv run python analysis/remote_analysis.py --layer 5
 uv run python scripts/00_download.py --model microsoft/phi-2
 uv run python scripts/01_extract.py --max-points 10000
 uv run python scripts/02_tda.py --output-dir custom_results/
+uv run python mlp_reconstructor.py --input phi2_weights.h5 --output mlp_reconstructions/
 ```
 
 ## 🧠 Key Concepts
@@ -373,7 +385,7 @@ graph TD
 
 #### **phi2_weights.h5** (5GB) - Raw Weight Matrices
 ```
-Total matrices: 193 (organized by layer and component)
+Total matrices: 257 (organized by layer and component)
 ├── Q_0 to Q_31: Query projections (2560, 2560) - "What am I looking for?"
 ├── K_0 to K_31: Key projections (2560, 2560) - "What information do I contain?"
 ├── V_0 to V_31: Value projections (2560, 2560) - "What should I pass along?"

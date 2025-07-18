@@ -6,6 +6,7 @@ Main entry point for all analysis workflows.
 import argparse
 import sys
 import os
+import importlib.util
 from pathlib import Path
 
 # Add project root to path
@@ -39,6 +40,12 @@ def main():
     tda_parser.add_argument('--input', default='point_clouds', help='Input point clouds directory')
     tda_parser.add_argument('--output', default='tda_results', help='Output directory')
     
+    # Reconstruct MLPs
+    reconstruct_parser = local_subparsers.add_parser('reconstruct-mlps', help='Reconstruct MLPs from weights')
+    reconstruct_parser.add_argument('--input', default='phi2_weights.h5', help='Input weights file')
+    reconstruct_parser.add_argument('--output', default='mlp_reconstructions', help='Output directory')
+    reconstruct_parser.add_argument('--num-layers', type=int, default=32, help='Number of layers to reconstruct')
+    
     # Remote analysis commands
     remote_parser = subparsers.add_parser('remote', help='Remote analysis workflows')
     remote_parser.add_argument('--demo', action='store_true', help='Run demo workflow')
@@ -54,17 +61,30 @@ def main():
     
     if args.command == 'local':
         if args.local_command == 'download':
-            from scripts.download_weights import main as download_main
-            sys.argv = ['download_weights.py', '--model', args.model, '--output', args.output]
-            download_main()
+            # Load the download script dynamically
+            spec = importlib.util.spec_from_file_location("download_script", "scripts/00_download.py")
+            download_script = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(download_script)
+            sys.argv = ['00_download.py', '--model', args.model, '--output', args.output]
+            download_script.main()
         elif args.local_command == 'extract':
-            from scripts.extract_point_clouds import main as extract_main
-            sys.argv = ['extract_point_clouds.py', '--input', args.input, '--output', args.output, '--max-points', str(args.max_points)]
-            extract_main()
+            # Load the extract script dynamically
+            spec = importlib.util.spec_from_file_location("extract_script", "scripts/01_extract.py")
+            extract_script = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(extract_script)
+            sys.argv = ['01_extract.py', '--input', args.input, '--output', args.output, '--max-points', str(args.max_points)]
+            extract_script.main()
         elif args.local_command == 'tda':
-            from scripts.compute_tda import main as tda_main
-            sys.argv = ['compute_tda.py', '--input', args.input, '--output', args.output]
-            tda_main()
+            # Load the TDA script dynamically
+            spec = importlib.util.spec_from_file_location("tda_script", "scripts/02_tda.py")
+            tda_script = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(tda_script)
+            sys.argv = ['02_tda.py', '--input', args.input, '--output', args.output]
+            tda_script.main()
+        elif args.local_command == 'reconstruct-mlps':
+            from mlp_reconstructor import extract_and_reconstruct_mlps
+            results = extract_and_reconstruct_mlps(args.input, args.output, args.num_layers)
+            print(f"MLP reconstruction completed! Output directory: {results['output_directory']}")
         else:
             local_parser.print_help()
     
