@@ -14,3 +14,5 @@ wheels/
 *.json
 *.npz
 *.pkl
+
+*.DS_Store
