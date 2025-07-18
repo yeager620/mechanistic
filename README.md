@@ -118,6 +118,10 @@ uv run python mlp_reconstructor.py
 ### Visualization (`notebooks/`)
 - **`03_viz.ipynb`** - Interactive visualization and analysis
 
+### MLP Reconstruction
+- **`mlp_reconstructor.py`** - Reconstruct all 32 trained MLPs from weights
+- **`validate_mlp_reconstruction.py`** - Validation against original model
+
 ### Core Utilities
 - **`utils.py`** - Helper functions and memory management
 
