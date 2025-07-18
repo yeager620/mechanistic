@@ -1,0 +1,13 @@
+Point Cloud Summary
+==================
+
+embedding: 8000 points, 25 dimensions
+Q_stratum: 12000 points, 30 dimensions
+K_stratum: 12000 points, 30 dimensions
+V_stratum: 12000 points, 30 dimensions
+O_stratum: 12000 points, 30 dimensions
+FF1_stratum: 15000 points, 35 dimensions
+FF2_stratum: 15000 points, 35 dimensions
+
+Total strata: 7
+Total points: 86000

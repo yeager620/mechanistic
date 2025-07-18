@@ -1,0 +1,24 @@
+[project]
+name = "phi2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "accelerate>=1.9.0",
+    "einops>=0.8.1",
+    "h5py>=3.14.0",
+    "huggingface-hub>=0.33.4",
+    "pandas>=2.3.1",
+    "persim>=0.3.8",
+    "psutil>=7.0.0",
+    "ripser>=0.6.12",
+    "safetensors>=0.5.3",
+    "scikit-learn>=1.7.1",
+    "seaborn>=0.13.2",
+    "torch>=2.7.1",
+    "torchaudio>=2.7.1",
+    "torchvision>=0.22.1",
+    "transformers>=4.35.0",
+    "umap-learn>=0.5.9.post2",
+]
