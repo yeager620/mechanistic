@@ -6,7 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Dict, List, Optional, Tuple, Any, Iterator
 from pathlib import Path
-from hf_data_loader import HFDataLoader, load_phi2_weights, load_phi2_point_clouds
+from .hf_data_loader import HFDataLoader, load_phi2_weights, load_phi2_point_clouds
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import logger
 import tempfile
 import os

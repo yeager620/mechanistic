@@ -7,6 +7,9 @@ import json
 from ripser import ripser
 from persim import plot_diagrams
 import matplotlib.pyplot as plt
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import logger, log_memory_usage
 
 def load_point_clouds(input_dir: str = "point_clouds") -> dict:

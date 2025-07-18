@@ -13,6 +13,9 @@ from huggingface_hub import hf_hub_download, list_repo_files
 import json
 from functools import lru_cache
 from contextlib import contextmanager
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import logger
 
 class HFDataLoader:

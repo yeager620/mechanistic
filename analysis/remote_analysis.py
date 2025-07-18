@@ -3,9 +3,12 @@ Remote analysis script demonstrating HuggingFace-first workflows.
 Run analysis without storing large files locally.
 """
 import numpy as np
-from hf_data_loader import HFDataLoader
-from hf_workflows import StreamingAnalyzer, quick_layer_analysis, comparative_stratum_analysis
-from config_remote import use_remote_data, get_current_config
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config.hf_data_loader import HFDataLoader
+from config.hf_workflows import StreamingAnalyzer, quick_layer_analysis, comparative_stratum_analysis
+from config.config_remote import use_remote_data, get_current_config
 from utils import logger
 import argparse
 import json
@@ -131,7 +134,7 @@ def compare_all_strata(output_path: str = "remote_analysis_results"):
 def memory_efficient_analysis(stratum_name: str, max_points: int = 1000,
                              output_path: str = "remote_analysis_results"):
     """Run memory-efficient TDA analysis on remote data."""
-    from hf_workflows import memory_efficient_tda
+    from config.hf_workflows import memory_efficient_tda
     
     logger.info(f"🧠 Memory-efficient TDA for {stratum_name}...")
     

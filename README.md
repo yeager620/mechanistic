@@ -19,60 +19,103 @@ cd phi2-tda
 uv sync
 ```
 
+### Project Structure
+```
+phi2-tda/
+├── phi2_tda.py                 # Main launcher script
+├── README.md                   # This file
+├── RESEARCH_FINDINGS.txt       # Research summary
+├── utils.py                    # Core utility functions
+├── scripts/                    # Local analysis pipeline
+│   ├── 00_download.py          # Model loading & weight extraction
+│   ├── 01_extract.py           # Point cloud preparation
+│   └── 02_tda.py               # Persistent homology computation
+├── config/                     # Configuration & remote workflows
+│   ├── config_remote.py        # Configuration management
+│   ├── hf_data_loader.py       # HuggingFace data loading
+│   └── hf_workflows.py         # Streaming analysis pipelines
+├── analysis/                   # Analysis workflows
+│   └── remote_analysis.py      # Remote analysis CLI
+├── notebooks/                  # Jupyter notebooks
+│   └── 03_viz.ipynb           # Visualization & analysis
+└── pyproject.toml              # Project dependencies
+```
+
 ### Choose Your Workflow
 
 #### Option 1: Remote Analysis (Recommended)
 Analyze without storing large files locally:
 ```bash
 # Demo workflow (~100MB cache)
-uv run python remote_analysis.py --demo
+uv run python phi2_tda.py remote --demo
 
 # Analyze specific layer (~200MB cache)
-uv run python remote_analysis.py --layer 0
+uv run python phi2_tda.py remote --layer 0
 
 # Compare all strata (~500MB cache)
-uv run python remote_analysis.py --strata
+uv run python phi2_tda.py remote --strata
 
 # Memory-efficient TDA (~50MB cache)
-uv run python remote_analysis.py --tda embedding --max-points 500
+uv run python phi2_tda.py remote --tda embedding --max-points 500
 ```
 
 #### Option 2: Local Analysis
 Full pipeline with local storage:
 ```bash
 # Step 1: Download and extract Phi-2 weights (~5-10 minutes, 5GB)
-uv run python 00_download.py
+uv run python phi2_tda.py local download
 
 # Step 2: Prepare point clouds for TDA (~2-3 minutes)
-uv run python 01_extract.py
+uv run python phi2_tda.py local extract
 
 # Step 3: Compute persistent homology (~5-15 minutes)
-uv run python 02_tda.py
+uv run python phi2_tda.py local tda
 
 # Step 4: Visualize results
-jupyter notebook 03_viz.ipynb
+jupyter notebook notebooks/03_viz.ipynb
+```
+
+#### Direct Script Access
+You can also run scripts directly:
+```bash
+# Remote analysis
+uv run python analysis/remote_analysis.py --demo
+
+# Local pipeline
+uv run python scripts/00_download.py
+uv run python scripts/01_extract.py
+uv run python scripts/02_tda.py
 ```
 
 ## 📋 Core Components
 
-### Analysis Scripts
-- **`remote_analysis.py`** - HuggingFace-first analysis workflows
+### Main Launcher
+- **`phi2_tda.py`** - Unified command-line interface for all workflows
+
+### Local Analysis Pipeline (`scripts/`)
 - **`00_download.py`** - Model loading and weight extraction
 - **`01_extract.py`** - Point cloud preparation
 - **`02_tda.py`** - Persistent homology computation
-- **`03_viz.ipynb`** - Visualization and analysis
 
-### Remote Analysis Infrastructure
+### Remote Analysis Infrastructure (`config/`)
 - **`hf_data_loader.py`** - Remote data loading with intelligent caching
 - **`hf_workflows.py`** - Streaming analysis pipelines
 - **`config_remote.py`** - Configuration management for remote vs local
+
+### Analysis Workflows (`analysis/`)
+- **`remote_analysis.py`** - HuggingFace-first analysis CLI
+
+### Visualization (`notebooks/`)
+- **`03_viz.ipynb`** - Interactive visualization and analysis
+
+### Core Utilities
 - **`utils.py`** - Helper functions and memory management
 
 ## 🔗 Remote Analysis Workflows
 
 ### Configuration Management
 ```python
-from config_remote import use_remote_data, use_minimal_resources
+from config.config_remote import use_remote_data, use_minimal_resources
 
 # Switch to remote data (default)
 config = use_remote_data("totalorganfailure/phi2-weights")
@@ -83,7 +126,7 @@ config = use_minimal_resources()
 
 ### Data Loading
 ```python
-from hf_data_loader import HFDataLoader
+from config.hf_data_loader import HFDataLoader
 
 # Initialize remote loader
 loader = HFDataLoader("totalorganfailure/phi2-weights")
@@ -98,7 +141,7 @@ pc_data = loader.load_point_cloud("embedding")
 
 ### Streaming Analysis
 ```python
-from hf_workflows import StreamingAnalyzer, quick_layer_analysis
+from config.hf_workflows import StreamingAnalyzer, quick_layer_analysis
 
 # Memory-efficient layer analysis
 analyzer = StreamingAnalyzer()
@@ -110,35 +153,31 @@ layer_result = quick_layer_analysis(0)
 
 ## 📊 Command Reference
 
-### Remote Analysis Commands
+### Main Launcher Commands
 ```bash
-# Demo workflow
-python remote_analysis.py --demo
+# Remote analysis
+uv run python phi2_tda.py remote --demo
+uv run python phi2_tda.py remote --layer 5 --output results/
+uv run python phi2_tda.py remote --batch 0 10 --output results/
+uv run python phi2_tda.py remote --strata --output results/
+uv run python phi2_tda.py remote --tda Q_stratum --max-points 1000
 
-# Analyze specific layer
-python remote_analysis.py --layer 5 --output results/
-
-# Batch analyze layers 0-10
-python remote_analysis.py --batch 0 10 --output results/
-
-# Compare all strata
-python remote_analysis.py --strata --output results/
-
-# Run TDA on specific stratum
-python remote_analysis.py --tda Q_stratum --max-points 1000
+# Local analysis
+uv run python phi2_tda.py local download --model microsoft/phi-2
+uv run python phi2_tda.py local extract --max-points 10000
+uv run python phi2_tda.py local tda --output custom_results/
 ```
 
-### Local Analysis Commands
+### Direct Script Commands
 ```bash
-# Full pipeline
-uv run python 00_download.py
-uv run python 01_extract.py
-uv run python 02_tda.py
+# Remote analysis scripts
+uv run python analysis/remote_analysis.py --demo
+uv run python analysis/remote_analysis.py --layer 5
 
-# Individual components
-uv run python 00_download.py --model microsoft/phi-2
-uv run python 01_extract.py --max-points 10000
-uv run python 02_tda.py --output-dir custom_results/
+# Local analysis scripts
+uv run python scripts/00_download.py --model microsoft/phi-2
+uv run python scripts/01_extract.py --max-points 10000
+uv run python scripts/02_tda.py --output-dir custom_results/
 ```
 
 ## 🧠 Key Concepts
@@ -268,8 +307,7 @@ The analysis results are available at: https://huggingface.co/datasets/totalorga
 graph TD
     %% Input Processing
     A[Input Token IDs] --> B[Token Embedding Layer]
-    B --> |"embed_tokens.weight<br/>[51200 x 2560]"| C[Positional Encoding]
-    C --> |"RoPE - No learnable params"| D[Layer Norm 1]
+    B --> |"embed_tokens.weight<br/>[51200 x 2560]"| D[First Layer Input]
     
     %% Transformer Layers (32 layers total)
     D --> |"layers.0 through layers.31"| E[Transformer Layer Block]
@@ -277,8 +315,8 @@ graph TD
     %% Detailed Transformer Layer
     subgraph TransformerLayer ["Transformer Layer (x32)"]
         E1[Input Residual Stream<br/>2560D] 
-        E1 --> E2[Layer Norm]
-        E2 --> |"input_layernorm.weight/bias<br/>[2560]"| E3[Multi-Head Self-Attention]
+        E1 --> E2[Layer Norm 1]
+        E2 --> |"ln_1.weight/bias<br/>[2560]"| E3[Multi-Head Self-Attention]
         
         %% Attention Detail
         subgraph Attention ["Multi-Head Attention (32 heads)"]
@@ -288,8 +326,10 @@ graph TD
             E4 --> |"q_proj.weight<br/>[2560 x 2560]"| E7[Q: 32 heads x 80D]
             E5 --> |"k_proj.weight<br/>[2560 x 2560]"| E8[K: 32 heads x 80D]
             E6 --> |"v_proj.weight<br/>[2560 x 2560]"| E9[V: 32 heads x 80D]
-            E7 --> E10[Scaled Dot-Product Attention]
-            E8 --> E10
+            E7 --> E7a[Apply RoPE to Q]
+            E8 --> E8a[Apply RoPE to K]
+            E7a --> E10[Scaled Dot-Product Attention]
+            E8a --> E10
             E9 --> E10
             E10 --> E11[Concatenate Heads]
             E11 --> |"dense.weight<br/>[2560 x 2560]"| E12[Output Projection]
@@ -298,10 +338,10 @@ graph TD
         E12 --> E13[Residual Connection 1]
         E1 --> E13
         E13 --> E14[Layer Norm 2] 
-        E14 --> |"post_attention_layernorm.weight/bias<br/>[2560]"| E15[MLP Feed-Forward]
+        E14 --> |"ln_2.weight/bias<br/>[2560]"| E15[MLP Feed-Forward]
         
         %% MLP Detail  
-        subgraph MLP ["Feed-Forward Network"]
+        subgraph MLP ["Feed-Forward Network (4x expansion)"]
             E15 --> E16[Linear 1]
             E16 --> |"fc1.weight/bias<br/>[2560 x 10240]"| E17[GELU Activation]
             E17 --> E18[Linear 2]
@@ -315,7 +355,7 @@ graph TD
     
     %% Output Processing
     E21 --> |"Repeat 32x"| F[Final Layer Norm]
-    F --> |"norm.weight/bias<br/>[2560]"| G[Language Model Head]
+    F --> |"ln_f.weight/bias<br/>[2560]"| G[Language Model Head]
     G --> |"lm_head.weight<br/>[2560 x 51200]"| H[Logits Output]
     H --> I[Vocabulary Probabilities<br/>51200 tokens]
     
@@ -323,10 +363,12 @@ graph TD
     classDef weightMatrix fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     classDef activation fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
     classDef residual fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef rope fill:#fff3e0,stroke:#e65100,stroke-width:2px
     
     class B,E4,E5,E6,E12,E16,E18,G weightMatrix
-    class C,E2,E14,F activation
+    class E2,E14,F,E17 activation
     class E13,E20 residual
+    class E7a,E8a rope
 ```
 
 #### **phi2_weights.h5** (5GB) - Raw Weight Matrices

@@ -6,6 +6,9 @@ import numpy as np
 import h5py
 import pathlib
 from transformers import AutoModelForCausalLM, AutoConfig
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
     log_memory_usage, validate_phi2_architecture, extract_weight_safely, 
     get_device_info, logger

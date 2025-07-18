@@ -6,6 +6,9 @@ import h5py
 import pathlib
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import (
     log_memory_usage, normalize_rows, subsample_points, 
     validate_point_cloud, logger
