@@ -2,75 +2,41 @@
 
 Mechanistic interpretability analysis of Microsoft's Phi-2 language model
 
-### Project Structure
-```
-phi2-tda/
-├── phi2_tda.py                 # Main launcher script
-├── README.md                   # This file
-├── RESEARCH_FINDINGS.txt       # Research summary
-├── utils.py                    # Core utility functions
-├── scripts/                    # Local analysis pipeline
-│   ├── 00_download.py          # Model loading & weight extraction
-│   ├── 01_extract.py           # Point cloud preparation
-│   └── 02_tda.py               # Persistent homology computation
-├── config/                     # Configuration & remote workflows
-│   ├── config_remote.py        # Configuration management
-│   ├── hf_data_loader.py       # HuggingFace data loading
-│   └── hf_workflows.py         # Streaming analysis pipelines
-├── analysis/                   # Analysis workflows
-│   └── remote_analysis.py      # Remote analysis CLI
-├── notebooks/                  # Jupyter notebooks
-│   └── 03_viz.ipynb           # Visualization & analysis
-└── pyproject.toml              # Project dependencies
-```
+## Workflows
 
-### Workflows
+### Remote Analysis
 
-#### Remote Analysis 
-Analyze without storing large files locally:
+avoids storing large files locally:
 ```bash
-# Demo workflow (~100MB cache)
+# demo
 uv run python phi2_tda.py remote --demo
 
-# Analyze specific layer (~200MB cache)
+# analyze a layer
 uv run python phi2_tda.py remote --layer 0
 
-# Compare all strata (~500MB cache)
+# compare strata 
 uv run python phi2_tda.py remote --strata
-
-# Memory-efficient TDA (~50MB cache)
-uv run python phi2_tda.py remote --tda embedding --max-points 500
 ```
 
-#### Local Analysis
-Full pipeline with local storage:
+## Local Analysis
 ```bash
-# Step 1: Download and extract Phi-2 weights (~5-10 minutes, 5GB)
 uv run python phi2_tda.py local download
-
-# Step 2: Prepare point clouds for TDA (~2-3 minutes)
 uv run python phi2_tda.py local extract
-
-# Step 3: Compute persistent homology (~5-15 minutes)
 uv run python phi2_tda.py local tda
-
-# Step 4: Visualize results
 jupyter notebook notebooks/03_viz.ipynb
 ```
 
-#### MLP Reconstruction
-Reconstruct all 32 trained MLPs from weights:
+## MLP Reconstruction
 ```bash
-# Requires downloaded weights from Option 2, Step 1
 uv run python phi2_tda.py local reconstruct-mlps --num-layers 32
 ```
 
-#### Scripts 
+### Scripts 
 ```bash
-# Remote analysis
+# remote
 uv run python analysis/remote_analysis.py --demo
 
-# Local pipeline
+# local
 uv run python scripts/00_download.py
 uv run python scripts/01_extract.py
 uv run python scripts/02_tda.py
